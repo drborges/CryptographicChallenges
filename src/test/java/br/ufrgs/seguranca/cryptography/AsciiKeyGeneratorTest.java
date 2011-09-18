@@ -41,7 +41,7 @@ public class AsciiKeyGeneratorTest {
 	public void updateKeyShould() {
 		
 		char[] key = new char[] { '$', '~', '~' };
-		keyGenerator.incValueAt(key, 1);
+		keyGenerator.computeOverflow(key, 1);
 		
 		Assert.assertEquals("%!~", String.valueOf(key));
 	}

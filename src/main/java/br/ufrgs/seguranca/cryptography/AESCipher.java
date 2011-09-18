@@ -55,7 +55,7 @@ public class AESCipher implements KeyBasedCipher {
 	public String decrypt(Hexadecimal encryptedMessage, String secretKey) throws Exception {
 
 		Key key = new SecretKeySpec(secretKey.getBytes(), AES_CIPHER);
-
+		
 		Cipher c = Cipher.getInstance(AES_CIPHER);
 
 		c.init(Cipher.DECRYPT_MODE, key);

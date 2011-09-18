@@ -64,7 +64,7 @@ public class AsciiKeyGenerator {
 				ascii = ASCII_LOWER_VALUE;
 				
 				key[lastCharIndex] = ASCII_LOWER_VALUE;
-				incValueAt(key, lastCharIndex - 1);
+				computeOverflow(key, lastCharIndex - 1);
 				
 				if (key[0] > upperAsciiValue) {
 					done = true;
@@ -88,14 +88,14 @@ public class AsciiKeyGenerator {
 	 * @param key the key to be updated
 	 * @param index the index of the first position to be updated in the key 
 	 */
-	public void incValueAt(char[] key, int index) {
+	public void computeOverflow(char[] key, int index) {
 
 		if (index >= 0) {
 
 			if (key[index] == ASCII_UPPER_VALUE) {
 				
 				key[index] = ASCII_LOWER_VALUE;
-				incValueAt(key, index - 1);
+				computeOverflow(key, index - 1);
 			}
 			else {
 				key[index]++;

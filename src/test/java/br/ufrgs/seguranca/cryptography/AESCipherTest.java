@@ -25,7 +25,7 @@ public class AESCipherTest {
 	}
 
 	@Test
-	public void shouldEncryptTheMessage() throws Exception {
+	public void shouldEncryptMessage() throws Exception {
 		
 		Hexadecimal hexa = cipher.encrypt(MESSAGE, SECRET_KEY);
 		
