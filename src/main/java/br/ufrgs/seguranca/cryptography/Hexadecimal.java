@@ -14,8 +14,9 @@ public class Hexadecimal {
 		this.value = CipherUtils.asHex(value);
 	}
 	
-	public void setValue(String value) {
+	public Hexadecimal setValue(String value) {
 		this.value = value.toUpperCase();
+		return this;
 	}
 	
 	public String getValue() {
