@@ -1,5 +1,6 @@
 package br.ufrgs.seguranca.cryptography;
 
+import java.security.AlgorithmParameters;
 import java.security.Key;
 
 import javax.crypto.Cipher;
@@ -30,9 +31,9 @@ public class AESCipher implements KeyBasedCipher {
 	 */
 	public Hexadecimal encrypt(String message, String secretKey) throws Exception {
 
-		Key key = new SecretKeySpec(secretKey.getBytes(), AES_CIPHER);
+		Key key = new SecretKeySpec(secretKey.getBytes("UTF-8"), AES_CIPHER);
 
-		Cipher c = Cipher.getInstance(AES_CIPHER);
+		Cipher c = Cipher.getInstance(AES_CIPHER + "/ECB/PKCS5Padding");
 
 		c.init(Cipher.ENCRYPT_MODE, key);
 
@@ -54,10 +55,10 @@ public class AESCipher implements KeyBasedCipher {
 	 */
 	public String decrypt(Hexadecimal encryptedMessage, String secretKey) throws Exception {
 
-		Key key = new SecretKeySpec(secretKey.getBytes(), AES_CIPHER);
+		Key key = new SecretKeySpec(secretKey.getBytes("UTF-8"), AES_CIPHER);
 		
-		Cipher c = Cipher.getInstance(AES_CIPHER);
-
+		Cipher c = Cipher.getInstance(AES_CIPHER + "/ECB/PKCS5Padding");
+		
 		c.init(Cipher.DECRYPT_MODE, key);
 
 		return new String(c.doFinal(encryptedMessage.asByteArray()));

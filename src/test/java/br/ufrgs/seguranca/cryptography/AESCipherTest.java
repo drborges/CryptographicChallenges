@@ -40,4 +40,25 @@ public class AESCipherTest {
 		Assert.assertEquals(MESSAGE, cipher.decrypt(encrypted, SECRET_KEY));
 	}
 
+	@Test
+	public void shouldGeneratePaddingFromKey() throws Exception {
+		
+		String hexaValue = cipher.encrypt(SECRET_KEY, SECRET_KEY).getValue();
+		String padding = hexaValue.substring(hexaValue.length()/2);
+		
+		Assert.assertEquals(HEXA_MESSAGE_PADDING, padding);
+		
+	}
+	
+	@Test
+	public void shouldUserComputedPaddingToDecodeMessage() throws Exception {
+		
+		String hexaValue = cipher.encrypt("essasenhaehfraco", "essasenhaehfraca").getValue();
+		String padding = hexaValue.substring(hexaValue.length()/2);
+		
+		Hexadecimal encryptedMessage = new Hexadecimal().setValue(HEXA_MESSAGE + padding);
+		String decodedMessage = cipher.decrypt(encryptedMessage, "essasenhaehfraca");
+		
+		Assert.assertEquals(MESSAGE, decodedMessage);
+	}
 }

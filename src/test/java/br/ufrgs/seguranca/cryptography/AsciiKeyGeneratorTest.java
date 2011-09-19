@@ -22,7 +22,7 @@ public class AsciiKeyGeneratorTest {
 	@Test
 	public void shouldGenerateAllPossibleAsciiKeysBetweenProvidedRange() {
 		
-		keyGenerator.generate();
+		keyGenerator.next();
 		
 		Assert.assertEquals("9!", String.valueOf(keyGenerator.getGeneratedKeys().get(0)));
 		Assert.assertEquals("9&", String.valueOf(keyGenerator.getGeneratedKeys().get(5)));
@@ -32,7 +32,7 @@ public class AsciiKeyGeneratorTest {
 	@Test
 	public void shouldGenerate61852Keys() {
 		
-		keyGenerator.generate();
+		keyGenerator.next();
 		
 		Assert.assertEquals(188, keyGenerator.getGeneratedKeys().size());
 	}

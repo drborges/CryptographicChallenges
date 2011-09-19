@@ -1,8 +1,6 @@
 package br.ufrgs.seguranca.cryptography;
 
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 public class AsciiKeyGenerator {
 
@@ -14,7 +12,7 @@ public class AsciiKeyGenerator {
 	private final int keySize;
 	private final int lastCharIndex;
 
-	private final List<char[]> generatedKeys = new LinkedList<char[]>();
+	private char[] lastGeneratedKey;
 
 	public AsciiKeyGenerator(int keySize, int lowerAsciiValue, int upperAsciiValue) {
 
@@ -23,6 +21,8 @@ public class AsciiKeyGenerator {
 		this.upperAsciiValue = upperAsciiValue;
 		
 		lastCharIndex = keySize - 1;
+		
+		initialize();
 	}
 
 	/**
@@ -39,38 +39,31 @@ public class AsciiKeyGenerator {
 		return key;
 	}
 	
+	public void initialize() {
+		lastGeneratedKey = getKeyTemplate();
+		lastGeneratedKey[0] = (char) lowerAsciiValue;
+	}
+	
 	/**
-	 * Generates all possible ASCII (33 to 126) keys in the provided range.
+	 * Gets the next valid key.
+	 * @throws NoMoreKeysException 
 	 */
-	public void generate() {
+	public String next() throws NoMoreKeysException {
+
+		lastGeneratedKey[lastCharIndex]++;
+		String key = String.valueOf(lastGeneratedKey);
 		
-		char[] key = getKeyTemplate();
-
-		int ascii = ASCII_LOWER_VALUE;
-		key[0] = (char) lowerAsciiValue;
-		
-		boolean done = false;
-		while (!done) {
-
-			key[lastCharIndex] = (char) ascii;
-			generatedKeys.add(key);
-
-			key = key.clone();
+		if (lastGeneratedKey[lastCharIndex] > ASCII_UPPER_VALUE) {
 			
-			System.out.println(key);
-			ascii++;
-			if (ascii > ASCII_UPPER_VALUE) {
-				
-				ascii = ASCII_LOWER_VALUE;
-				
-				key[lastCharIndex] = ASCII_LOWER_VALUE;
-				computeOverflow(key, lastCharIndex - 1);
-				
-				if (key[0] > upperAsciiValue) {
-					done = true;
-				}
+			lastGeneratedKey[lastCharIndex] = ASCII_LOWER_VALUE;
+			computeOverflow(lastGeneratedKey, lastCharIndex - 1);
+			
+			if (lastGeneratedKey[0] > upperAsciiValue) {
+				throw new NoMoreKeysException("All possible keys were already generated.");
 			}
 		}
+		
+		return key;
 	}
 
 	/**
@@ -101,9 +94,5 @@ public class AsciiKeyGenerator {
 				key[index]++;
 			}
 		}
-	}
-
-	public List<char[]> getGeneratedKeys() {
-		return generatedKeys;
 	}
 }

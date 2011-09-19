@@ -1,6 +1,7 @@
 package br.ufrgs.seguranca.cryptography;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Set;
@@ -19,22 +20,40 @@ public class Worker implements Callable<String> {
 
 		this.encodedMessage = new Hexadecimal().setValue(encodedMessage);
 		this.partialKey = partialKey;
+		this.dictionary = dictionary;
 
 		cipher = new AESCipher();
 		keyGenerator = new AsciiKeyGenerator(suffixSize, lower, upper);
 	}
 
+	private String computePadding(String key) throws Exception {
+
+		String hexaValue = cipher.encrypt(key, key).getValue();
+		return hexaValue.substring(hexaValue.length() / 2);
+	}
+
 	public String call() throws Exception {
 
-		keyGenerator.generate();
+		StringBuilder keyBuilder = new StringBuilder();
+		String key = keyBuilder.append(partialKey).append(String.valueOf(keyGenerator.next())).toString();
 
-		StringBuilder builder = new StringBuilder();
-		for (char[] keySuffix : keyGenerator.getGeneratedKeys()) {
-
-			String key = builder.append(partialKey).append(String.valueOf(keySuffix)).toString();
-			String decodedMessage = cipher.decrypt(encodedMessage, key);
-			if (containsDictionaryWords(decodedMessage)) {
-				writeMessageAndKeyIntoFile(decodedMessage, key);
+		boolean done = false;
+		while (!done) {
+			
+			try {
+				System.out.println(key);
+				
+				String padding = computePadding(key);
+				String decodedMessage = cipher.decrypt(encodedMessage.setPadding(padding), key);
+				if (containsDictionaryWords(decodedMessage)) {
+					writeMessageAndKeyIntoFile(decodedMessage, key);
+				}
+				
+				keyBuilder = new StringBuilder();
+				key = keyBuilder.append(partialKey).append(String.valueOf(keyGenerator.next())).toString();
+				
+			} catch (NoMoreKeysException e) {
+				done = true;
 			}
 		}
 
@@ -43,7 +62,10 @@ public class Worker implements Callable<String> {
 
 	private void writeMessageAndKeyIntoFile(String message, String key) throws IOException {
 
-		FileWriter fstream = new FileWriter("/src/test/resources/decoded_" + System.currentTimeMillis() + ".txt");
+		File file = new File("/home/diego/Desktop/decoded_" + System.currentTimeMillis() + ".txt");
+		file.createNewFile();
+		
+		FileWriter fstream = new FileWriter(file);
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write("Key: " + key);
 		out.newLine();
