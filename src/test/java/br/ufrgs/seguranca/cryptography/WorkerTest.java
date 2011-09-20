@@ -39,33 +39,14 @@ public class WorkerTest {
             "ACF1576F43B4009C9D36A4A349C70A29" +
             "9312238EAE619D3ADC2DB034D40357F1";
 
-	
-	private Set<String> dictionary;
-	
-	@Before
-	public void setUp() throws Exception {
-		
-		dictionary = new HashSet<String>();
-		dictionary.add(" que ");
-		dictionary.add(" um ");
-		dictionary.add(" uma ");
-		dictionary.add(" para ");
-		dictionary.add(" os ");
-		dictionary.add(" as ");
-		dictionary.add(" ele ");
-		dictionary.add(" ela ");
-		dictionary.add(" voce ");
-		dictionary.add("3AD5A2B4AB307932942D3A78ED8255EB");
-	}
-
 	@Test
-	public void test() throws Exception {
+	public void shouldDecodeMessage() throws Exception {
 		
-		worker = new Worker(ENCODED_MESSAGE + HEXA_MESSAGE_PADDING, PARTIAL_KEY, dictionary, 2, 98, 99);
+		worker = new Worker(ENCODED_MESSAGE + HEXA_MESSAGE_PADDING, PARTIAL_KEY, 2, 98, 99);
 		
-		String decodedMessage = worker.call();
+		String key = worker.call();
 		
-		Assert.assertEquals(EXPECTED_MESSAGE, decodedMessage);
+		Assert.assertEquals("essasenhaehfraca", key);
 	}
 
 	@Test
@@ -74,7 +55,7 @@ public class WorkerTest {
 		KeyBasedCipher cipher = new AESCipher();
 		Hexadecimal encoded = cipher.encrypt(BIG_TEXT, "essasenhaehfraca");
 		
-		worker = new Worker(encoded.getValue(), PARTIAL_KEY, dictionary, 2, 98, 99);
+		worker = new Worker(encoded.getValue(), PARTIAL_KEY, 2, 98, 99);
 		
 		worker.call();
 	}

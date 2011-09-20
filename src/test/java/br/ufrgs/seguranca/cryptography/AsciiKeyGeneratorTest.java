@@ -2,7 +2,6 @@ package br.ufrgs.seguranca.cryptography;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class AsciiKeyGeneratorTest {
@@ -13,36 +12,29 @@ public class AsciiKeyGeneratorTest {
 	public static final int LOWER_ASCII_VALUE = 57;
 	public static final int UPPER_ASCII_VALUE = 58;
 	
-	@Before
-	public void setUp() throws Exception {
+
+	@Test
+	public void shouldGenerateTheThreeFirstKeys() throws NoMoreKeysException {
+	
+		keyGenerator = new AsciiKeyGenerator(KEY_SIZE, LOWER_ASCII_VALUE, UPPER_ASCII_VALUE);
+		
+		String firstKey = keyGenerator.next();
+		String secondKey = keyGenerator.next();
+		String thirdKey = keyGenerator.next();
+		
+		Assert.assertEquals("9!", firstKey);
+		Assert.assertEquals("9\"", secondKey);
+		Assert.assertEquals("9#", thirdKey);
+	}
+
+	@Test
+	public void shouldComputeOverflowOfTheLastKeyCharacter() {
 		
 		keyGenerator = new AsciiKeyGenerator(KEY_SIZE, LOWER_ASCII_VALUE, UPPER_ASCII_VALUE);
-	}
-
-	@Test
-	public void shouldGenerateAllPossibleAsciiKeysBetweenProvidedRange() {
 		
-		keyGenerator.next();
+		char[] key = new char[] { 36, 126, 127 };
+		keyGenerator.computeOverflow(key, 2);
 		
-		Assert.assertEquals("9!", String.valueOf(keyGenerator.getGeneratedKeys().get(0)));
-		Assert.assertEquals("9&", String.valueOf(keyGenerator.getGeneratedKeys().get(5)));
-		Assert.assertEquals("9+", String.valueOf(keyGenerator.getGeneratedKeys().get(10)));
-	}
-	
-	@Test
-	public void shouldGenerate61852Keys() {
-		
-		keyGenerator.next();
-		
-		Assert.assertEquals(188, keyGenerator.getGeneratedKeys().size());
-	}
-
-	@Test
-	public void updateKeyShould() {
-		
-		char[] key = new char[] { '$', '~', '~' };
-		keyGenerator.computeOverflow(key, 1);
-		
-		Assert.assertEquals("%!~", String.valueOf(key));
+		Assert.assertEquals("%!!", String.valueOf(key));
 	}
 }

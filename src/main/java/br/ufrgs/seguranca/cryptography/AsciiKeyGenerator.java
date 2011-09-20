@@ -1,11 +1,13 @@
 package br.ufrgs.seguranca.cryptography;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
-public class AsciiKeyGenerator {
+public class AsciiKeyGenerator implements Iterator<String> {
 
-	private static final int ASCII_LOWER_VALUE = 33;
-	private static final int ASCII_UPPER_VALUE = 126;
+	public static final int KEY_FIRST_CHAR_INDEX = 0;
+	public static final int ASCII_LOWER_VALUE = 33;
+	public static final int ASCII_UPPER_VALUE = 126;
 	
 	private final int upperAsciiValue;
 	private final int lowerAsciiValue;
@@ -21,13 +23,28 @@ public class AsciiKeyGenerator {
 		this.upperAsciiValue = upperAsciiValue;
 		
 		lastCharIndex = keySize - 1;
-		
-		initialize();
+		lastGeneratedKey = getKeyTemplate();
 	}
 
+	public AsciiKeyGenerator(char[] firstKey, int keySize, int lowerAsciiValue, int upperAsciiValue) {
+
+		this.keySize = keySize;
+		this.lowerAsciiValue = lowerAsciiValue;
+		this.upperAsciiValue = upperAsciiValue;
+		
+		lastCharIndex = firstKey.length - 1;
+		lastGeneratedKey = firstKey;
+	}
+	
 	/**
-	 * Gets the trivial key (all characters are equal to the ASCII_LOWER_VALUE) as
-	 * template to generate all other possibilities.
+	 * Gets a template to generate the first key.
+	 * 
+	 * <p>
+	 * This template is a char array of length equals to the provided key size. Each char in the array
+	 * has an initial value equals to the {@link AsciiKeyGenerator#ASCII_LOWER_VALUE} except the last char
+	 * that has a value equals to {@link AsciiKeyGenerator#ASCII_LOWER_VALUE} - 1, and the first one, with value
+	 * equals to the provided lower ASCII value.
+	 * </p>
 	 * 
 	 * @return the key template
 	 */
@@ -36,31 +53,24 @@ public class AsciiKeyGenerator {
 		char[] key = new char[keySize];
 		Arrays.fill(key, (char) ASCII_LOWER_VALUE);
 		
+		key[0] = (char) lowerAsciiValue;
+		key[lastCharIndex] = ASCII_LOWER_VALUE - 1;
+		
 		return key;
 	}
 	
-	public void initialize() {
-		lastGeneratedKey = getKeyTemplate();
-		lastGeneratedKey[0] = (char) lowerAsciiValue;
-	}
-	
 	/**
-	 * Gets the next valid key.
-	 * @throws NoMoreKeysException 
+	 * Returns the next generated key.
+	 * 
+	 * @return a string representation of the generated key
 	 */
-	public String next() throws NoMoreKeysException {
-
+	public String next() {
+		
 		lastGeneratedKey[lastCharIndex]++;
 		String key = String.valueOf(lastGeneratedKey);
 		
-		if (lastGeneratedKey[lastCharIndex] > ASCII_UPPER_VALUE) {
-			
-			lastGeneratedKey[lastCharIndex] = ASCII_LOWER_VALUE;
-			computeOverflow(lastGeneratedKey, lastCharIndex - 1);
-			
-			if (lastGeneratedKey[0] > upperAsciiValue) {
-				throw new NoMoreKeysException("All possible keys were already generated.");
-			}
+		if (lastGeneratedKey[lastCharIndex] > ASCII_UPPER_VALUE) {	
+			computeOverflow(lastGeneratedKey, lastCharIndex);	
 		}
 		
 		return key;
@@ -83,9 +93,9 @@ public class AsciiKeyGenerator {
 	 */
 	public void computeOverflow(char[] key, int index) {
 
-		if (index >= 0) {
+		if (index >= KEY_FIRST_CHAR_INDEX) {
 
-			if (key[index] == ASCII_UPPER_VALUE) {
+			if (key[index] >= ASCII_UPPER_VALUE) {
 				
 				key[index] = ASCII_LOWER_VALUE;
 				computeOverflow(key, index - 1);
@@ -94,5 +104,20 @@ public class AsciiKeyGenerator {
 				key[index]++;
 			}
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.util.Iterator#hasNext()
+	 */
+	public boolean hasNext() {
+		return lastGeneratedKey[0] <= upperAsciiValue;
+	}
+
+	/**
+	 * Not supported!
+	 */
+	public void remove() {
+		throw new UnsupportedOperationException("This operation is not supported by this iterator.");
 	}
 }
