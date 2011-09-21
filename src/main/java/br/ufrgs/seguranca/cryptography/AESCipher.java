@@ -1,6 +1,5 @@
 package br.ufrgs.seguranca.cryptography;
 
-import java.security.AlgorithmParameters;
 import java.security.Key;
 
 import javax.crypto.Cipher;
@@ -11,8 +10,9 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author diego
  */
-public class AESCipher implements KeyBasedCipher {
+public class AESCipher {
 
+	public static final String CHARSET = "UTF-8";
 	public static final String AES_CIPHER = "AES";
 
 	/**
@@ -29,11 +29,12 @@ public class AESCipher implements KeyBasedCipher {
 	 * @throws Exception
 	 *             Thrown if any problem occur when encrypting the message
 	 */
-	public Hexadecimal encrypt(String message, String secretKey) throws Exception {
+	public Hexadecimal encrypt(String message, String secretKey)
+			throws Exception {
 
-		Key key = new SecretKeySpec(secretKey.getBytes("UTF-8"), AES_CIPHER);
+		Key key = new SecretKeySpec(secretKey.getBytes(CHARSET), AES_CIPHER);
 
-		Cipher c = Cipher.getInstance(AES_CIPHER + "/ECB/PKCS5Padding");
+		Cipher c = Cipher.getInstance(AES_CIPHER);
 
 		c.init(Cipher.ENCRYPT_MODE, key);
 
@@ -43,7 +44,7 @@ public class AESCipher implements KeyBasedCipher {
 	/**
 	 * Decrypts a hexadecimal message into the plain message
 	 * 
-	 * @param encryptedMessage
+	 * @param encodedMessage
 	 *            The hexadecimal encrypted message
 	 * @param secretKey
 	 *            the secret key used to encrypt the message
@@ -53,14 +54,57 @@ public class AESCipher implements KeyBasedCipher {
 	 * @throws Exception
 	 *             Thrown if any problem occur when decrypting the message
 	 */
-	public String decrypt(Hexadecimal encryptedMessage, String secretKey) throws Exception {
+	public String decrypt(Hexadecimal encodedMessage, String secretKey)
+			throws Exception {
+		
+		Key key = new SecretKeySpec(secretKey.getBytes(CHARSET), AES_CIPHER);
 
-		Key key = new SecretKeySpec(secretKey.getBytes("UTF-8"), AES_CIPHER);
-		
-		Cipher c = Cipher.getInstance(AES_CIPHER + "/ECB/PKCS5Padding");
-		
+		Cipher c = Cipher.getInstance(AES_CIPHER);
+
 		c.init(Cipher.DECRYPT_MODE, key);
 
-		return new String(c.doFinal(encryptedMessage.asByteArray()));
+		String decodedMessage = new String(c.doFinal(encodedMessage.asByteArray()));
+		
+		if (encodedMessage.hasPadding()) {
+			decodedMessage = removePaddingFromDecodedMessage(decodedMessage, encodedMessage.getPadding(), secretKey);
+		}
+		
+		return decodedMessage;
 	}
+	
+	/**
+	 * Computes the padding hexadecimal value for encoded messages using the provided key
+	 * 
+	 * @param key used to encode a message
+	 * 
+	 * @return the hexadecimal string value of the computed padding
+	 * 
+	 * @throws Exception Thrown if any error occur in the computation process
+	 */
+	public String computePadding(String key) throws Exception {
+
+		String hexaValue = encrypt(key, key).getValue();
+		String padding = hexaValue.substring(hexaValue.length() / 2);
+		
+		return padding;
+	}
+	
+	/**
+	 * Removes the padding from the decoded message
+	 * 
+	 * @param decodedMessage the decoded message to remove padding from
+	 * @param padding 
+	 * @param key the key used to decoded the message
+	 * 
+	 * @return the message without the padding
+	 * 
+	 * @throws Exception Thrown if an error occur in the padding computation process
+	 */
+	public String removePaddingFromDecodedMessage(String decodedMessage, Hexadecimal padding, String key) throws Exception {
+
+		String decodedPadding = decrypt(padding, key);
+		
+		return decodedMessage.substring(0, decodedMessage.length() - decodedPadding.length());
+	}
+
 }

@@ -1,6 +1,7 @@
 package br.ufrgs.seguranca.cryptography;
 
 import java.io.FileNotFoundException;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +18,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class BruteForceDecoderTest {
 
 	@Test
-	public void decoderShouldUserOneWorkerPerAvaiableCPU() throws FileNotFoundException, InterruptedException {
+	public void decoderShouldUserOneWorkerPerAvaiableCPU() throws FileNotFoundException, InterruptedException, ExecutionException {
 		
 		String encodedMessage = MessageExtractor.extract("src/main/resources/message");
 		
@@ -25,5 +26,11 @@ public class BruteForceDecoderTest {
 		decoder.setMissingKeySuffixSize(5);
 		decoder.decode();
 		
+	}
+	
+	@Test
+	public void shouldWriteResultIntoFile() throws Exception {
+		
+		BruteForceDecoder.writeToFile("essasenhaehfraca", "A506A19333F306AC2C62CBE931963AE7");
 	}
 }

@@ -13,6 +13,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkerTest {
 
+	private static final String SECRET_KEY = "essasenhaehfraca";
+
 	private Worker worker;
 	
 	public static final String ENCODED_MESSAGE = "A506A19333F306AC2C62CBE931963AE7";
@@ -42,18 +44,18 @@ public class WorkerTest {
 	@Test
 	public void shouldDecodeMessage() throws Exception {
 		
-		worker = new Worker(ENCODED_MESSAGE + HEXA_MESSAGE_PADDING, PARTIAL_KEY, 2, 98, 99);
+		worker = new Worker(ENCODED_MESSAGE, PARTIAL_KEY, 2, 98, 99);
 		
 		String key = worker.call();
 		
-		Assert.assertEquals("essasenhaehfraca", key);
+		Assert.assertEquals(SECRET_KEY, key);
 	}
 
 	@Test
 	public void bigText() throws Exception {
-			
-		KeyBasedCipher cipher = new AESCipher();
-		Hexadecimal encoded = cipher.encrypt(BIG_TEXT, "essasenhaehfraca");
+		
+		AESCipher cipher = new AESCipher();
+		Hexadecimal encoded = cipher.encrypt(BIG_TEXT, SECRET_KEY);
 		
 		worker = new Worker(encoded.getValue(), PARTIAL_KEY, 2, 98, 99);
 		
@@ -61,8 +63,12 @@ public class WorkerTest {
 	}
 	
 	@Test
-	public void bigTextRocks() {
+	public void decodeRealMessage() throws Exception {
 		
-		Assert.assertEquals(BIG_TEXT, "3AD5A2B4AB307932942D3A78ED8255EBD8C473FCB32960346C3568FC8ED7B615A48CF384BFFDBCFBD2BFEDCCBD65BAE707405BD70A93DE1EEF514A2D9F2710C39498B9E50D9A7784B0F5E27FF6459DF7831897A6217824D7123671598F5DCAF72227D0CBBCC7A0A3B6501209FF2AD52700EDC381AB87113EB212CDEBEE7063B45E945010227A5CD3D71BD48437C40C379EA81C9EBF690E2B77A0AABE290E0FC3EFFB1D0B43E9C3D783642EB36C6BA8F4C8048BA1D1C6FD52CBEF093C55CD78D51BD62C15DBD1878C6A72E377516D566D23E5AF78F46BDFB92FCDF661FD6F4E431C372E1C9D4D4CD316EC8D089ED2D206452741326ED84EF07F61053E030822EBACF1576F43B4009C9D36A4A349C70A299312238EAE619D3ADC2DB034D40357F1");
+		AESCipher cipher = new AESCipher();
+		
+		String padding = cipher.computePadding("Key2Group02!k{fH");
+		Hexadecimal encodedMessage = new Hexadecimal().setValue(BIG_TEXT).setPadding(padding);
+		System.out.println(cipher.decrypt(encodedMessage, "Key2Group02!k{fH"));
 	}
 }

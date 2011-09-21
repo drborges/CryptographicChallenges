@@ -3,7 +3,7 @@ package br.ufrgs.seguranca.cryptography;
 public class Hexadecimal {
 
 	private String value;
-	private String padding = "";
+	private Hexadecimal padding;
 
 	public Hexadecimal() {}
 	
@@ -15,17 +15,26 @@ public class Hexadecimal {
 		this.value = CipherUtils.asHex(value);
 	}
 	
+	public boolean hasPadding() {
+		return padding != null;
+	}
+	
 	public Hexadecimal setValue(String value) {
 		this.value = value.toUpperCase();
 		return this;
 	}
 	
 	public String getValue() {
-		return value;
+		
+		if (padding == null) {
+			return value;
+		} else {
+			return value + padding.value;
+		}
 	}
 	
 	public byte[] asByteArray() {
-		return CipherUtils.hexToBytes(getPaddedValue());
+		return CipherUtils.hexToBytes(getValue());
 	}
 	
 	@Override
@@ -44,16 +53,21 @@ public class Hexadecimal {
 		return "[Hexadecimal: " + value + "]";
 	}
 
-	public Hexadecimal setPadding(String padding) {
+	public Hexadecimal setPadding(Hexadecimal padding) {
 		this.padding = padding;
 		return this;
 	}
-
-	public String getPadding() {
-		return padding;
+	
+	public Hexadecimal setPadding(String hexaPadding) {
+		this.padding = new Hexadecimal().setValue(hexaPadding);
+		return this;
 	}
 	
-	public String getPaddedValue() {
-		return value + padding;
+	public Hexadecimal getPadding() {
+		return padding;
+	}
+
+	public int getBytesCount() {
+		return getValue().length();
 	}
 }
