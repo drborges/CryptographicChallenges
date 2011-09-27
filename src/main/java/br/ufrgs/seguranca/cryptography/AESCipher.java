@@ -9,6 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
  * Component used to encrypt/decrypt messages using AES cipher
  * 
  * @author diego
+ * yeah yeah, só colocando bobagens pra depois poder comitar
  */
 public class AESCipher {
 
